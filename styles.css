@@ -1,0 +1,55 @@
+body {
+  font-family: sans-serif;
+
+}
+
+.paintings {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+img {
+  margin: 5px;
+}
+
+.arrow {
+  position: fixed;
+  bottom: 50px;
+  left: calc(50% - 10px);
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 75%);
+  height: 50px;
+  width: 50px;
+  display: none;
+  justify-content: center;
+  font-size: 2.5em;
+  /* animation-name: float; */
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transform: rotate(180deg);
+  transition: 1s;
+}
+
+.arrow span {
+  position: absolute;
+  top: 8px;
+}
+
+@keyframes float {
+  from {
+    bottom: 50px;
+  }
+
+  to {
+    bottom: 100px;
+  }
+}
