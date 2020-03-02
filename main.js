@@ -25,7 +25,7 @@ d3.csv('elements-by-episode.csv').then(data => {
   const width = window.innerWidth
   const height = window.innerHeight
 
-  const selected = new Set()
+  let selected = new Set()
 
 
   const pack = data => d3.pack()	// Create a new pack layout
@@ -42,20 +42,55 @@ d3.csv('elements-by-episode.csv').then(data => {
     .attr("font-size", 10)
     .attr("font-family", "sans-serif")
     .attr("text-anchor", "middle")
-    // .style('border', '1px solid')
+  // .style('border', '1px solid')
 
   const leaf = svg.selectAll("g")
     .data(root.leaves())	// Get the data from the leaves of the root element
     .join("g")						// Join includes x and y properties that were added from pack()
     .attr("transform", d => `translate(${d.x + 1},${d.y + 1})`);
 
+  const totalsTextBox = document.querySelector(".total-text")
+  const totalsBox = document.querySelector(".totals")
+
+  const resetButton = document.querySelector("button.reset")
+  resetButton.onclick = () => {
+    selected = new Set()
+    update()
+  }
+
+  function addText({ type, total }) {
+    const p = document.createElement("p")
+    p.innerHTML = `${type}: ${total}`
+    p.onclick = () => {
+      selected.add(type)
+      update()
+    }
+    totalsTextBox.appendChild(p)
+  }
+
   function update() {
+
     d3.selectAll('svg g circle')
-      .attr("fill", d => d.selected ? "green" : "blue")
-    const paintings = data.filter((painting) => [...selected].reduce((r, key) => painting[key] == 1 ? r : false, true)).map(painting => painting.TITLE.slice(1, painting.TITLE.length - 1).toLowerCase())
+      .attr("fill", d => selected.has(d.data.key) ? "green" : "blue")
+    let paintings = data.filter((painting) => [...selected].reduce((r, key) => painting[key] == 1 ? r : false, true))
+
+    const paintingTotals = []
+    Object.keys(types).forEach(type => {
+      const paintingTotal = paintings.reduce((r, painting) => parseInt(painting[type]) + r, 0)
+      paintingTotals.push({ total: paintingTotal, type })
+    })
+
+    paintingTotals.sort((a, b) => b.total - a.total)
+    totalsTextBox.innerHTML = ""
+    paintingTotals.forEach(painting => {
+      if (painting.total > 0) {
+        addText(painting)
+      }
+    })
+
+    paintings = paintings.map(painting => painting.TITLE.slice(1, painting.TITLE.length - 1).toLowerCase())
 
 
-    
     const paintingImgs = imgData.filter(img => paintings.includes(img.painting_title.toLowerCase()))
 
 
@@ -81,14 +116,14 @@ d3.csv('elements-by-episode.csv').then(data => {
   leaf.append("text")
     .attr("clip-path", d => d.clipUid)
     .selectAll("tspan")
-    .data(d => d.r > 30 ? d.data.key.split(/(?=[A-Z][^A-Z])/g) : "")
+    .data(d => d.r > 30 ? `${d.data.key}`.split(/(?=[A-Z][^A-Z])/g) : "") //(${d.data.value})
     .join("tspan")
     .attr("x", 0)
     .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.8}em`)
     .text(d => d)
 
   leaf.on("click", (d) => {
-    if(!clicked) {
+    if (!clicked) {
       clicked = true
       showArrow()
     }
@@ -124,8 +159,10 @@ function showArrow() {
 
 
 window.onscroll = () => {
-  if (window.scrollY > window.innerHeight) {
+  if (window.scrollY > window.innerHeight * .5) {
     arrow.style.opacity = "0"
   }
 }
+
+
 

@@ -1,6 +1,5 @@
 body {
   font-family: sans-serif;
-
 }
 
 .paintings {
@@ -42,6 +41,15 @@ img {
 .arrow span {
   position: absolute;
   top: 8px;
+}
+
+.totals {
+  position: absolute;
+  cursor: pointer;
+}
+
+.totals > .total-text > p {
+  font-size: .8em;
 }
 
 @keyframes float {
